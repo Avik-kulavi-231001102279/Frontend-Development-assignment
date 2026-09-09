@@ -1,0 +1,14 @@
+{
+  "name": "farm-employee-directory",
+  "version": "1.0.0",
+  "description": "Farm Employee Directory & Management System",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "server": "cd backend && node server.js",
+    "client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
