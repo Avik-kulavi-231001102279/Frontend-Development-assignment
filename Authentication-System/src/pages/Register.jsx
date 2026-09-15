@@ -104,7 +104,7 @@ const Register = () => {
               name="username" 
               value={formData.username} 
               onChange={handleChange} 
-              placeholder="johndoe123"
+              placeholder="johndoe"
             />
             {errors.username && <span className="auth-error">{errors.username}</span>}
           </div>
