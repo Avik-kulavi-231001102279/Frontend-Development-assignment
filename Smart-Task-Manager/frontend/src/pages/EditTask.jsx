@@ -35,7 +35,7 @@ const EditTask = () => {
       showToast('Task updated successfully', 'success');
       navigate(`/tasks/${id}`);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to update task', 'error');
+      showToast(err.message || 'Failed to update task', 'error');
     }
   };
 

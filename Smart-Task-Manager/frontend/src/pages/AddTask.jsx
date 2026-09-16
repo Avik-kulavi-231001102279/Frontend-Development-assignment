@@ -16,7 +16,7 @@ const AddTask = () => {
       showToast('Task created successfully', 'success');
       navigate('/tasks');
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to create task', 'error');
+      showToast(err.message || 'Failed to create task', 'error');
     }
   };
 

@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { TaskContext } from '../context/TaskContext';
 import { ToastContext } from '../context/ToastContext';
 import TaskCard from '../components/TaskCard';
 import { Search, Filter, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import _ from 'lodash';
 
 const Tasks = () => {
   const { tasks, fetchTasks, loading, updateTaskStatus, deleteTask } = useContext(TaskContext);
@@ -17,23 +16,33 @@ const Tasks = () => {
     category: ''
   });
 
-  // Debounce search
+  // Debounce search using vanilla JS (replaces lodash debounce)
+  const debounceTimerRef = useRef(null);
   const debouncedFetch = useCallback(
-    _.debounce((currentFilters) => {
-      const queryParams = new URLSearchParams();
-      if (currentFilters.search) queryParams.append('search', currentFilters.search);
-      if (currentFilters.status) queryParams.append('status', currentFilters.status);
-      if (currentFilters.priority) queryParams.append('priority', currentFilters.priority);
-      if (currentFilters.category) queryParams.append('category', currentFilters.category);
-      
-      fetchTasks(`?${queryParams.toString()}`);
-    }, 500),
+    (currentFilters) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        const queryParams = new URLSearchParams();
+        if (currentFilters.search) queryParams.append('search', currentFilters.search);
+        if (currentFilters.status) queryParams.append('status', currentFilters.status);
+        if (currentFilters.priority) queryParams.append('priority', currentFilters.priority);
+        if (currentFilters.category) queryParams.append('category', currentFilters.category);
+        
+        fetchTasks(`?${queryParams.toString()}`);
+      }, 500);
+    },
     [fetchTasks]
   );
 
   useEffect(() => {
     debouncedFetch(filters);
-    return () => debouncedFetch.cancel();
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [filters, debouncedFetch]);
 
   const handleFilterChange = (e) => {

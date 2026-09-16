@@ -1,20 +1,8 @@
-import React, { useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { ToastContext } from '../context/ToastContext';
-import { LayoutDashboard, ListTodo, PlusCircle, CheckSquare, User, LogOut, X } from 'lucide-react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, ListTodo, PlusCircle, CheckSquare, X } from 'lucide-react';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
-  const { logout } = useContext(AuthContext);
-  const { showToast } = useContext(ToastContext);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    showToast('Logout successful', 'success');
-    navigate('/login');
-  };
-
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header" style={{ justifyContent: 'space-between' }}>
@@ -37,16 +25,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         <NavLink to="/tasks/completed" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
           <CheckSquare size={20} /> Completed Tasks
         </NavLink>
-        <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
-          <User size={20} /> Profile
-        </NavLink>
       </nav>
-
-      <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
-        <button onClick={handleLogout} className="nav-link" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-          <LogOut size={20} /> Logout
-        </button>
-      </div>
     </aside>
   );
 };
