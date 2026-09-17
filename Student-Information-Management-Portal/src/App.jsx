@@ -90,8 +90,8 @@ function App() {
 
   /** Add Student — callback passed to AddStudent (Child → Parent) */
   const handleAddStudent = async (newStudent) => {
-    // The AddStudent component handles the actual API call now so it can handle errors
-    // We just update the local state with the returned saved student
+    // The AddStudent component handles the storage call so it can handle errors
+    // We update the local state with the returned saved student
     setStudents((prev) => [newStudent, ...prev]);
     setIsModalOpen(false);
     setEditingStudent(null);

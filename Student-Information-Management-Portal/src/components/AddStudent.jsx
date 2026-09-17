@@ -72,6 +72,15 @@ function AddStudent({
         return;
       }
 
+      // Check file size (max 1.5MB for LocalStorage compatibility)
+      if (file.size > 1.5 * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          photo: "Image size must be less than 1.5MB for local storage.",
+        }));
+        return;
+      }
+
       // Read the file as Data URL for browser storage and preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -389,7 +398,7 @@ function AddStudent({
             </div>
           </div>
 
-          {/* API Error Display */}
+          {/* Storage Error Display */}
           {errors.formApiError && (
             <div className="form-error" style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem' }}>
               {errors.formApiError}

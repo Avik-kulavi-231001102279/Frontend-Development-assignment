@@ -46,7 +46,7 @@ const generateId = () => {
 
 export const fetchStudents = async () => {
   const students = readStudents();
-  // Sort by createdAt descending (newest first) to preserve original backend behavior
+  // Sort by createdAt descending (newest first)
   return [...students].sort(
     (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   );
