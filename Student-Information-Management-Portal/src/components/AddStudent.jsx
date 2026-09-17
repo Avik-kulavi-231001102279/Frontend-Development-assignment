@@ -1,24 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createStudent, updateStudent } from "../services/api";
 
-/**
- * AddStudent Component
- *
- * Handles both Add and Edit student forms inside a modal dialog.
- * Demonstrates Child → Parent data passing using callback Props.
- *
- * Props:
- *   - isOpen (boolean): Controls modal visibility
- *   - onClose (function): Callback to close the modal (child → parent)
- *   - onAddStudent (function): Callback to send new student data to App (child → parent)
- *   - onEditStudent (function): Callback to send edited student data to App (child → parent)
- *   - existingRollNumbers (array): List of existing roll numbers for duplicate validation
- *   - editingStudent (object|null): Student being edited, or null for new student
- *
- * Data Flow:
- *   App passes onAddStudent/onEditStudent callbacks → AddStudent calls them with student data
- *   This is a clear demonstration of Child-to-Parent communication via callback Props.
- */
 
 const INITIAL_FORM_STATE = {
   name: "",
@@ -124,8 +106,8 @@ function AddStudent({
       // When editing, allow same roll number for the same student
       const rollNumbers = isEditMode
         ? existingRollNumbers.filter(
-            (r) => r !== editingStudent.rollNumber.toUpperCase()
-          )
+          (r) => r !== editingStudent.rollNumber.toUpperCase()
+        )
         : existingRollNumbers;
 
       if (rollNumbers.includes(rollUpper)) {
@@ -190,10 +172,10 @@ function AddStudent({
           rollNumber: "Student data already exists!",
         }));
       } else {
-        console.error("API Error:", error);
+        console.error("Storage Error:", error);
         setErrors((prev) => ({
           ...prev,
-          formApiError: error.message || "An unexpected error occurred. Is the backend running?",
+          formApiError: error.message || "An unexpected error occurred while saving student data.",
         }));
       }
     }

@@ -40,7 +40,7 @@ function App() {
     saveTheme(theme);
   }, [darkMode]);
 
-  // Fetch students from backend on mount
+  // Fetch students from LocalStorage on mount
   useEffect(() => {
     const loadStudents = async () => {
       try {
