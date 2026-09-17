@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Farm Employee Directory & Management System",
   "scripts": {
-    "install-all": "cd backend && npm install && cd ../frontend && npm install",
-    "server": "cd backend && node server.js",
-    "client": "cd frontend && npm run dev",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "client": "npm --prefix frontend run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
