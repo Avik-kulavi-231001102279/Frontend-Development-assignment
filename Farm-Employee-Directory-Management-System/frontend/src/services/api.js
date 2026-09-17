@@ -5,7 +5,7 @@ const DEFAULT_EMPLOYEES = [
   {
     _id: 'emp_seed_001',
     employeeId: 'EMP001',
-    name: 'John Vance',
+    name: 'Avik kulavi',
     department: 'Agriculture',
     gender: 'Male',
     phoneNumber: '9876543210',
@@ -17,7 +17,7 @@ const DEFAULT_EMPLOYEES = [
   {
     _id: 'emp_seed_002',
     employeeId: 'EMP002',
-    name: 'Sarah Jenkins',
+    name: 'Ankita Dey',
     department: 'Livestock',
     gender: 'Female',
     phoneNumber: '9876543211',
@@ -29,7 +29,7 @@ const DEFAULT_EMPLOYEES = [
   {
     _id: 'emp_seed_003',
     employeeId: 'EMP003',
-    name: 'Robert Martinez',
+    name: 'Anubhav samanta',
     department: 'Maintenance',
     gender: 'Male',
     phoneNumber: '9876543212',
@@ -41,9 +41,9 @@ const DEFAULT_EMPLOYEES = [
   {
     _id: 'emp_seed_004',
     employeeId: 'EMP004',
-    name: 'Emily Chen',
+    name: 'Soham shyamal',
     department: 'Administration',
-    gender: 'Female',
+    gender: 'Male',
     phoneNumber: '9876543213',
     localAddress: 'Main Farmhouse Office, Suite A',
     permanentAddress: '90 Elm Boulevard, Springfield',
