@@ -1,0 +1,296 @@
+/* ============================================================
+   App.css – Global Styles, Theme Variables, Background Effects
+   ============================================================ */
+
+/* CSS Custom Properties (Theme Tokens) */
+:root {
+  /* Accent palette – Indigo/Violet */
+  --accent-h: 245;
+  --accent-s: 85%;
+  --accent-l: 60%;
+  --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-glow: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.35);
+  --accent-soft: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1);
+  --accent-gradient: linear-gradient(135deg, hsl(245, 85%, 60%), hsl(280, 80%, 55%));
+
+  /* Typography */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+
+  /* Spacing */
+  --section-padding: 100px 0;
+  --container-max: 1200px;
+  --border-radius: 16px;
+  --border-radius-sm: 10px;
+  --border-radius-xs: 6px;
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Dark Theme ────────────────────────────────────────────── */
+.app.dark {
+  --bg-primary: #060611;
+  --bg-secondary: #0c0c1d;
+  --bg-card: rgba(15, 15, 35, 0.65);
+  --bg-card-hover: rgba(20, 20, 50, 0.8);
+  --bg-glass: rgba(15, 15, 35, 0.55);
+  --bg-input: rgba(20, 20, 50, 0.5);
+
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0bc;
+  --text-muted: #6a6a8a;
+
+  --border-color: rgba(120, 120, 180, 0.12);
+  --border-glow: rgba(120, 120, 255, 0.2);
+
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --glass-blur: 16px;
+  --glass-border: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Light Theme ───────────────────────────────────────────── */
+.app.light {
+  --bg-primary: #f5f5fa;
+  --bg-secondary: #eeeef5;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.6);
+  --bg-input: rgba(255, 255, 255, 0.8);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8a8aaa;
+
+  --border-color: rgba(0, 0, 30, 0.08);
+  --border-glow: rgba(100, 100, 250, 0.15);
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 40, 0.08);
+  --shadow-card-hover: 0 12px 36px rgba(0, 0, 40, 0.12);
+
+  --glass-blur: 12px;
+  --glass-border: rgba(0, 0, 0, 0.06);
+}
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-primary);
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  color: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs);
+}
+
+/* ── App wrapper ───────────────────────────────────────────── */
+.app {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background var(--transition-slow), color var(--transition-slow);
+}
+
+/* ── Animated Background Grid ──────────────────────────────── */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(120, 120, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 120, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.app.light .bg-grid {
+  background-image:
+    linear-gradient(rgba(100, 100, 200, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 100, 200, 0.06) 1px, transparent 1px);
+}
+
+/* ── Floating Orbs ─────────────────────────────────────────── */
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.bg-orb--1 {
+  width: 500px;
+  height: 500px;
+  background: hsla(245, 85%, 55%, 0.12);
+  top: -10%;
+  right: -10%;
+  animation: orbFloat1 20s ease-in-out infinite;
+}
+
+.bg-orb--2 {
+  width: 400px;
+  height: 400px;
+  background: hsla(280, 80%, 50%, 0.1);
+  bottom: 20%;
+  left: -8%;
+  animation: orbFloat2 25s ease-in-out infinite;
+}
+
+.bg-orb--3 {
+  width: 300px;
+  height: 300px;
+  background: hsla(200, 85%, 50%, 0.08);
+  top: 50%;
+  right: 15%;
+  animation: orbFloat3 18s ease-in-out infinite;
+}
+
+.app.light .bg-orb--1 { background: hsla(245, 85%, 55%, 0.08); }
+.app.light .bg-orb--2 { background: hsla(280, 80%, 50%, 0.06); }
+.app.light .bg-orb--3 { background: hsla(200, 85%, 50%, 0.05); }
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-60px, 40px) scale(1.1); }
+  66% { transform: translate(30px, -50px) scale(0.95); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(50px, -30px) scale(1.05); }
+  66% { transform: translate(-40px, 60px) scale(0.9); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-50px, 40px); }
+}
+
+/* ── Container ─────────────────────────────────────────────── */
+.section__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--primary {
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--accent-glow);
+}
+
+.btn--primary:hover .btn__icon {
+  transform: translateX(4px);
+}
+
+.btn__icon {
+  transition: transform var(--transition-fast);
+}
+
+.btn--outline {
+  border: 1.5px solid var(--border-glow);
+  color: var(--text-primary);
+  backdrop-filter: blur(8px);
+  background: var(--bg-glass);
+}
+
+.btn--outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+/* ── Reduced Motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .bg-orb {
+    animation: none !important;
+  }
+}
