@@ -532,3 +532,9 @@ personal-portfolio-flame-omega-85.vercel.app
 These projects were created for educational and academic purposes to demonstrate different concepts of modern React.js development.
 
 Each assignment focuses on a specific set of React concepts and progressively builds knowledge from basic components to routing, state management, API integration, and authentication.
+
+
+
+
+
+
