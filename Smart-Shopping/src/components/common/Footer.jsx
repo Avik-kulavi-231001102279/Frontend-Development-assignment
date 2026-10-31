@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { addToast } from '../../features/preferences/preferenceSlice';
 import {
   ShoppingBag,
-  Mail,
   ShieldCheck,
   Truck,
   RotateCcw,
@@ -12,6 +11,8 @@ import {
   Heart,
   ArrowRight,
 } from 'lucide-react';
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 export const Footer = () => {
   const [email, setEmail] = useState('');
@@ -52,7 +53,7 @@ export const Footer = () => {
                   Fast & Free Shipping
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Free delivery on all orders over $100
+                  Free delivery on all eligible orders over ₹1,000
                 </p>
               </div>
             </div>
@@ -219,7 +220,7 @@ export const Footer = () => {
 
         {/* Bottom copyright */}
         <div className="border-t border-slate-200 dark:border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-500 gap-3">
-          <p>© {new Date().getFullYear()} ShopSphere Inc. All rights reserved.</p>
+          <p>© {CURRENT_YEAR} ShopSphere Inc. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> using React.js & Redux Toolkit
           </p>

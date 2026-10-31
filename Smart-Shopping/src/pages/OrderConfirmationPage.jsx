@@ -12,7 +12,6 @@ import {
   Calendar,
   MapPin,
   CreditCard,
-  ArrowRight,
   ShoppingBag,
 } from 'lucide-react';
 
@@ -138,7 +137,7 @@ export const OrderConfirmationPage = () => {
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               <MapPin className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Delivering To</span>
+              <span>Shipping Information</span>
             </div>
             <p className="text-xs font-bold text-slate-900 dark:text-white">
               {order.shippingAddress?.fullName}
@@ -154,7 +153,7 @@ export const OrderConfirmationPage = () => {
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               <CreditCard className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Payment Details</span>
+              <span>Payment Method</span>
             </div>
             <p className="text-xs font-bold text-slate-900 dark:text-white">
               {order.paymentMethod}
@@ -189,7 +188,7 @@ export const OrderConfirmationPage = () => {
             <span>{order.shipping === 0 ? 'FREE' : formatPrice(order.shipping, currency)}</span>
           </div>
           <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-baseline text-sm font-bold text-slate-900 dark:text-white">
-            <span>Total Paid:</span>
+            <span>Total Amount:</span>
             <span className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">
               {formatPrice(order.totalAmount, currency)}
             </span>
@@ -197,22 +196,22 @@ export const OrderConfirmationPage = () => {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Buttons: Continue Shopping & View My Orders */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link
-          to="/orders"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all"
-        >
-          <Package className="w-4 h-4" />
-          <span>View in My Orders</span>
-        </Link>
-
-        <Link
           to="/shop"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all"
         >
           <ShoppingBag className="w-4 h-4" />
           <span>Continue Shopping</span>
+        </Link>
+
+        <Link
+          to="/orders"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors"
+        >
+          <Package className="w-4 h-4" />
+          <span>View My Orders</span>
         </Link>
       </div>
     </div>

@@ -58,14 +58,14 @@ export const selectCartDiscount = createSelector(
 
 /**
  * Memoized selector: Cart Shipping
- * Standard $10 shipping, free for orders above $100 or when FREESHIP coupon applied
+ * Standard shipping, free for orders above 100 or when FREESHIP coupon applied
  */
 export const selectCartShipping = createSelector(
   [selectCartSubtotal, selectAppliedCoupon],
   (subtotal, coupon) => {
     if (subtotal <= 0) return 0;
     if (coupon?.discountType === 'free_shipping') return 0;
-    if (subtotal >= 100) return 0; // Free shipping over $100
+    if (subtotal >= 100) return 0; // Free shipping threshold
     return 10.0;
   }
 );

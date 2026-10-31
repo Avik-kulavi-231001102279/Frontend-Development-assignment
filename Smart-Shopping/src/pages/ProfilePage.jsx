@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, updateProfile, logout } from '../features/auth/authSlice';
 import { selectAllOrders } from '../features/orders/orderSelectors';
 import { addToast } from '../features/preferences/preferenceSlice';
-import { User, Mail, Phone, MapPin, Package, LogOut, Check, Edit3 } from 'lucide-react';
+import { removeFromStorage, STORAGE_KEYS } from '../utils/localStorage';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Package,
+  LogOut,
+  Edit3,
+  Camera,
+  User,
+  Trash2,
+} from 'lucide-react';
 
 export const ProfilePage = () => {
   const currentUser = useSelector(selectCurrentUser);
@@ -12,7 +23,9 @@ export const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
+
   const [formData, setFormData] = useState({
     name: currentUser?.name || '',
     phone: currentUser?.phone || '',
@@ -21,6 +34,54 @@ export const ProfilePage = () => {
     state: currentUser?.state || '',
     pinCode: currentUser?.pinCode || '',
   });
+
+  // Handle uploading custom photo from local disk/device
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      dispatch(
+        addToast({
+          message: 'Please choose a valid image file (PNG, JPG, WebP).',
+          type: 'error',
+        })
+      );
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      dispatch(
+        addToast({
+          message: 'Image size should be less than 3MB.',
+          type: 'error',
+        })
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Data = event.target?.result;
+      if (base64Data) {
+        dispatch(updateProfile({ avatar: base64Data }));
+        dispatch(
+          addToast({
+            message: 'Profile photo updated successfully!',
+            type: 'success',
+          })
+        );
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (e) => {
+    e.stopPropagation();
+    dispatch(updateProfile({ avatar: null }));
+    dispatch(addToast({ message: 'Profile photo removed.', type: 'info' }));
+  };
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -31,29 +92,92 @@ export const ProfilePage = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    removeFromStorage(STORAGE_KEYS.AUTH);
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem(STORAGE_KEYS.AUTH);
+      sessionStorage.removeItem('token');
+    } catch {
+      // Safe fallback
+    }
     dispatch(addToast({ message: 'Signed out successfully.', type: 'info' }));
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   return (
     <div className="max-w-4xl mx-auto py-8 sm:py-12 space-y-8 pb-16">
       {/* Header Profile Hero Card */}
       <div className="p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-        <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-          <img
-            src={
-              currentUser?.avatar ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email}`
-            }
-            alt={currentUser?.name}
-            className="w-24 h-24 rounded-2xl object-cover ring-4 ring-indigo-50 dark:ring-indigo-950 bg-indigo-100"
-          />
-          <div className="space-y-1">
+        <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+          {/* User Profile Avatar Box with Hover Overlay */}
+          <div className="relative group shrink-0">
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-24 h-24 rounded-2xl ring-4 ring-indigo-50 dark:ring-indigo-950/80 bg-slate-100 dark:bg-slate-800 shadow-md flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:ring-indigo-300 dark:hover:ring-indigo-700"
+              title={currentUser?.avatar ? 'Click to change photo' : 'Click to upload photo'}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+            >
+              {currentUser?.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser?.name || 'User Profile Photo'}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+                  <User className="w-10 h-10 mb-0.5" />
+                  <span className="text-[10px] font-semibold text-slate-400">No Photo</span>
+                </div>
+              )}
+
+              {/* Hover Overlay: "Update Photo" or "Upload Photo" */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200 p-1 text-center backdrop-blur-[1px]">
+                <Camera className="w-5 h-5 mb-1 text-indigo-300 animate-pulse" />
+                <span className="text-[11px] font-bold leading-tight">
+                  {currentUser?.avatar ? 'Update Photo' : 'Upload Photo'}
+                </span>
+                <span className="text-[9px] text-slate-300 opacity-90 mt-0.5">Click to choose</span>
+              </div>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              aria-label="Upload profile photo"
+            />
+
+            {currentUser?.avatar && (
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                title="Remove current photo"
+                className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-rose-500 hover:bg-rose-600 text-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                aria-label="Remove photo"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
             <h1 className="text-2xl font-black text-slate-900 dark:text-white">
-              {currentUser?.name || 'Valued Customer'}
+              {isEditing ? formData.name || 'Your Name' : currentUser?.name || 'Valued Customer'}
             </h1>
             <p className="text-xs font-mono text-slate-400">{currentUser?.email}</p>
-            <div className="flex items-center gap-2 pt-1 justify-center sm:justify-start">
+
+            {/* Status Badges - Clean & Verified */}
+            <div className="flex items-center gap-2 pt-0.5 justify-center sm:justify-start flex-wrap">
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">
                 ✓ Verified Account
               </span>
@@ -61,10 +185,14 @@ export const ProfilePage = () => {
                 {orders.length} Order(s) Placed
               </span>
             </div>
+
+            <p className="text-[11px] text-slate-400 pt-1">
+              Hover over your photo to upload or change your profile picture.
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => setIsEditing(!isEditing)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
@@ -169,13 +297,13 @@ export const ProfilePage = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs"
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs cursor-pointer"
                 >
                   Save Changes
                 </button>
@@ -187,7 +315,9 @@ export const ProfilePage = () => {
                 <Mail className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div>
                   <span className="text-slate-400 block text-[11px]">Email Address</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{currentUser?.email}</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    {currentUser?.email}
+                  </span>
                 </div>
               </div>
 
@@ -195,7 +325,9 @@ export const ProfilePage = () => {
                 <Phone className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div>
                   <span className="text-slate-400 block text-[11px]">Phone Number</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{currentUser?.phone || 'Not provided'}</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    {currentUser?.phone || 'Not provided'}
+                  </span>
                 </div>
               </div>
 
@@ -204,7 +336,9 @@ export const ProfilePage = () => {
                 <div>
                   <span className="text-slate-400 block text-[11px]">Primary Shipping Address</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    {currentUser?.address ? `${currentUser.address}, ${currentUser.city}, ${currentUser.state} - ${currentUser.pinCode}` : 'No address saved yet'}
+                    {currentUser?.address
+                      ? `${currentUser.address}, ${currentUser.city}, ${currentUser.state} - ${currentUser.pinCode}`
+                      : 'No address saved yet'}
                   </span>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { saveToStorage, STORAGE_KEYS } from '../utils/localStorage';
+import { saveToStorage, removeFromStorage, STORAGE_KEYS } from '../utils/localStorage';
 
 /**
  * Custom Redux Persistence Middleware
@@ -25,7 +25,15 @@ export const persistenceMiddleware = (store) => (next) => (action) => {
         token: state.auth.token,
       });
     } else {
-      saveToStorage(STORAGE_KEYS.AUTH, null);
+      removeFromStorage(STORAGE_KEYS.AUTH);
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem(STORAGE_KEYS.AUTH);
+        sessionStorage.removeItem('token');
+      } catch {
+        // Safe fallback in test environments
+      }
     }
   }
 

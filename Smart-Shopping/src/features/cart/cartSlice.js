@@ -4,8 +4,8 @@ import { loadFromStorage, STORAGE_KEYS } from '../../utils/localStorage';
 // Supported promo coupons with validation rules
 export const AVAILABLE_COUPONS = {
   WELCOME10: { code: 'WELCOME10', discountType: 'percentage', value: 10, minOrder: 0, description: '10% off your entire order' },
-  SHOPSPHERE20: { code: 'SHOPSPHERE20', discountType: 'percentage', value: 20, minOrder: 50, description: '20% off on orders over $50' },
-  SAVE15: { code: 'SAVE15', discountType: 'fixed', value: 15, minOrder: 60, description: '$15 off on orders over $60' },
+  SHOPSPHERE20: { code: 'SHOPSPHERE20', discountType: 'percentage', value: 20, minOrder: 50, description: '20% off on eligible orders' },
+  SAVE15: { code: 'SAVE15', discountType: 'fixed', value: 15, minOrder: 60, description: 'Flat ₹15 off on eligible orders' },
   FREESHIP: { code: 'FREESHIP', discountType: 'free_shipping', value: 0, minOrder: 30, description: 'Free Express Shipping' },
 };
 

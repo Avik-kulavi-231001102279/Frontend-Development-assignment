@@ -7,7 +7,6 @@ import {
   selectProductsStatus,
   selectProductsError,
   selectAllProducts,
-  selectSelectedCategory,
 } from '../features/products/productSelectors';
 import {
   setSearchTerm,
@@ -17,7 +16,7 @@ import { selectViewMode } from '../features/preferences/preferenceSlice';
 import FilterSidebar from '../components/products/FilterSidebar';
 import SortDropdown from '../components/products/SortDropdown';
 import ProductGrid from '../components/products/ProductGrid';
-import { Filter, SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 
 export const ShopPage = () => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -26,7 +25,6 @@ export const ShopPage = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectFilteredAndSortedProducts);
   const allProducts = useSelector(selectAllProducts);
-  const selectedCategory = useSelector(selectSelectedCategory);
   const status = useSelector(selectProductsStatus);
   const error = useSelector(selectProductsError);
   const viewMode = useSelector(selectViewMode);

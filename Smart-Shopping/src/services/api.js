@@ -3,6 +3,8 @@
  * Real REST API integration with timeout and graceful fallback
  */
 
+import { convertProductsListToInr, convertProductToInr } from '../utils/currency';
+
 const BASE_URL = 'https://fakestoreapi.com';
 
 export const fallbackCategories = [
@@ -223,12 +225,12 @@ export const api = {
     try {
       const data = await fetchWithTimeout(`${BASE_URL}/products`);
       if (Array.isArray(data) && data.length > 0) {
-        return data;
+        return convertProductsListToInr(data);
       }
-      return fallbackProducts;
+      return convertProductsListToInr(fallbackProducts);
     } catch (err) {
       console.warn('Fake Store API unreachable or timed out. Using fallback products cache.', err);
-      return fallbackProducts;
+      return convertProductsListToInr(fallbackProducts);
     }
   },
 
@@ -237,15 +239,15 @@ export const api = {
     try {
       const data = await fetchWithTimeout(`${BASE_URL}/products/${id}`);
       if (data && data.id) {
-        return data;
+        return convertProductToInr(data);
       }
       const found = fallbackProducts.find((p) => p.id === Number(id));
-      if (found) return found;
+      if (found) return convertProductToInr(found);
       throw new Error(`Product with ID ${id} not found.`);
     } catch (err) {
       console.warn(`Fake Store API failed for product ${id}. Using fallback.`, err);
       const found = fallbackProducts.find((p) => p.id === Number(id));
-      if (found) return found;
+      if (found) return convertProductToInr(found);
       throw err;
     }
   },
@@ -270,16 +272,18 @@ export const api = {
       const encoded = encodeURIComponent(category);
       const data = await fetchWithTimeout(`${BASE_URL}/products/category/${encoded}`);
       if (Array.isArray(data) && data.length > 0) {
-        return data;
+        return convertProductsListToInr(data);
       }
-      return fallbackProducts.filter(
+      const filtered = fallbackProducts.filter(
         (p) => p.category.toLowerCase() === category.toLowerCase()
       );
+      return convertProductsListToInr(filtered);
     } catch (err) {
       console.warn(`Fake Store API category ${category} failed. Using fallback.`, err);
-      return fallbackProducts.filter(
+      const filtered = fallbackProducts.filter(
         (p) => p.category.toLowerCase() === category.toLowerCase()
       );
+      return convertProductsListToInr(filtered);
     }
   },
 };

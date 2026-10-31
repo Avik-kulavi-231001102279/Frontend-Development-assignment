@@ -1,0 +1,8 @@
+:root {
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --surface-glass-light: rgba(255, 255, 255, 0.85);
+  --surface-glass-dark: rgba(15, 23, 42, 0.85);
+  --border-glass-light: rgba(226, 232, 240, 0.8);
+  --border-glass-dark: rgba(51, 65, 85, 0.8);
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}

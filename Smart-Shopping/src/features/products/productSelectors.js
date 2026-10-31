@@ -54,7 +54,9 @@ export const selectFilteredProducts = createSelector(
       const price = Number(product.price) || 0;
       const minPrice = priceRange ? priceRange[0] : 0;
       const maxPrice = priceRange ? priceRange[1] : 1000;
-      const matchesPrice = price >= minPrice && price <= maxPrice;
+      const isDefaultFilter = minPrice === 0 && maxPrice === 1000;
+      const effectiveMax = product._inrConverted && maxPrice < 1000 ? maxPrice * 83 : maxPrice;
+      const matchesPrice = isDefaultFilter ? true : price >= minPrice && price <= effectiveMax;
 
       // Rating filter
       const rate = product.rating ? product.rating.rate : 0;
@@ -102,6 +104,33 @@ export const selectProductsByCategory = createSelector(
     return products.filter(
       (p) => p.category.toLowerCase() === category.toLowerCase()
     );
+  }
+);
+
+/**
+ * Memoized selector: Sorted products for a specific category
+ */
+export const selectSortedCategoryProducts = createSelector(
+  [selectProductsByCategory, selectSortBy],
+  (products, sortBy) => {
+    const list = [...products];
+    switch (sortBy) {
+      case 'price-asc':
+        return list.sort((a, b) => a.price - b.price);
+      case 'price-desc':
+        return list.sort((a, b) => b.price - a.price);
+      case 'rating':
+        return list.sort(
+          (a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0)
+        );
+      case 'alpha-asc':
+        return list.sort((a, b) => a.title.localeCompare(b.title));
+      case 'alpha-desc':
+        return list.sort((a, b) => b.title.localeCompare(a.title));
+      case 'featured':
+      default:
+        return list;
+    }
   }
 );
 

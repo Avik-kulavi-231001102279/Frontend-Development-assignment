@@ -41,6 +41,25 @@ describe('Redux Custom Middlewares', () => {
       expect(next).toHaveBeenCalledWith(action);
       consoleSpy.mockRestore();
     });
+
+    it('should handle asynchronous action logging for pending, fulfilled, and rejected types', () => {
+      const store = {
+        getState: vi.fn().mockReturnValue({ products: { status: 'idle' } }),
+      };
+      const next = vi.fn().mockImplementation((action) => action);
+
+      const asyncActions = [
+        { type: 'products/fetchProducts/pending' },
+        { type: 'products/fetchProducts/fulfilled', payload: [{ id: 1 }] },
+        { type: 'products/fetchProducts/rejected', error: { message: 'Network Error' } },
+      ];
+
+      for (const action of asyncActions) {
+        const result = loggerMiddleware(store)(next)(action);
+        expect(result).toBe(action);
+      }
+      expect(next).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe('persistenceMiddleware', () => {
@@ -107,6 +126,30 @@ describe('Redux Custom Middlewares', () => {
       expect(stored).toBeDefined();
       expect(stored.theme).toBe('dark');
       expect(stored.currency).toBe('INR');
+    });
+
+    it('should clear authentication storage on auth/logout', () => {
+      // First save an active session
+      localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify({ token: 'abc' }));
+
+      const mockState = {
+        auth: {
+          isAuthenticated: false,
+          user: null,
+          token: null,
+        },
+      };
+
+      const store = {
+        getState: vi.fn().mockReturnValue(mockState),
+      };
+      const next = vi.fn().mockImplementation((action) => action);
+      const action = { type: 'auth/logout' };
+
+      persistenceMiddleware(store)(next)(action);
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.AUTH));
+      expect(stored).toBeNull();
     });
   });
 });

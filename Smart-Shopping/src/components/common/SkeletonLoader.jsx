@@ -58,9 +58,6 @@ export const ProductDetailsSkeleton = () => {
   );
 };
 
-export default {
-  ProductCardSkeleton,
-  ProductGridSkeleton,
-  CategoryCardSkeleton,
-  ProductDetailsSkeleton,
-};
+export default function SkeletonLoader() {
+  return <ProductCardSkeleton />;
+}

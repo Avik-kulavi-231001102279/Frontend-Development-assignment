@@ -1,16 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { loadFromStorage, STORAGE_KEYS } from '../../utils/localStorage';
+import { loadFromStorage, removeFromStorage, STORAGE_KEYS } from '../../utils/localStorage';
 import { simulateLogin, simulateRegistration } from './authThunks';
 
-const persistedAuth = loadFromStorage(STORAGE_KEYS.AUTH, null);
-
-const initialState = {
-  user: persistedAuth?.user || null,
-  token: persistedAuth?.token || null,
-  isAuthenticated: Boolean(persistedAuth?.token),
-  loading: false,
-  error: null,
+export const getInitialAuthState = () => {
+  const persistedAuth = loadFromStorage(STORAGE_KEYS.AUTH, null);
+  return {
+    user: persistedAuth?.user || null,
+    token: persistedAuth?.token || null,
+    isAuthenticated: Boolean(persistedAuth?.token),
+    loading: false,
+    error: null,
+  };
 };
+
+const initialState = getInitialAuthState();
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -20,6 +23,23 @@ export const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
+      removeFromStorage(STORAGE_KEYS.AUTH);
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem(STORAGE_KEYS.AUTH);
+        sessionStorage.removeItem('token');
+      } catch {
+        // Safe fallback in test environments
+      }
+    },
+    rehydrateAuth: (state) => {
+      const persistedAuth = loadFromStorage(STORAGE_KEYS.AUTH, null);
+      state.user = persistedAuth?.user || null;
+      state.token = persistedAuth?.token || null;
+      state.isAuthenticated = Boolean(persistedAuth?.token);
       state.loading = false;
       state.error = null;
     },
@@ -76,7 +96,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logout, updateProfile, clearAuthError } = authSlice.actions;
+export const { logout, rehydrateAuth, updateProfile, clearAuthError } = authSlice.actions;
 
 // Selectors
 export const selectCurrentUser = (state) => state.auth.user;

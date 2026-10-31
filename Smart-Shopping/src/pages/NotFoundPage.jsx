@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SearchBar from '../components/common/SearchBar';
-import { Home, Compass, AlertCircle } from 'lucide-react';
+import { Home, Compass } from 'lucide-react';
 
 export const NotFoundPage = () => {
   return (

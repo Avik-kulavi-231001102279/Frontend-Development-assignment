@@ -97,6 +97,42 @@ describe('authSlice reducer and selectors', () => {
     expect(updatedState.user.name).toBe('Alex Morgan');
   });
 
+  it('should handle clearAuthError action', () => {
+    const errorState = {
+      ...initialTestState,
+      error: 'Some error message',
+    };
+    const clearedState = authReducer(errorState, clearAuthError());
+    expect(clearedState.error).toBeNull();
+  });
+
+  it('should handle simulateRegistration pending, fulfilled, rejected', () => {
+    const pending = authReducer(
+      initialTestState,
+      simulateRegistration.pending('req_2', { name: 'New User', email: 'new@example.com' })
+    );
+    expect(pending.loading).toBe(true);
+
+    const fulfilled = authReducer(
+      pending,
+      simulateRegistration.fulfilled(
+        { user: { id: 'user_new', name: 'New User' }, token: 'new_token' },
+        'req_2',
+        { name: 'New User' }
+      )
+    );
+    expect(fulfilled.loading).toBe(false);
+    expect(fulfilled.isAuthenticated).toBe(true);
+    expect(fulfilled.user.name).toBe('New User');
+
+    const rejected = authReducer(
+      pending,
+      simulateRegistration.rejected(null, 'req_2', null, 'Registration failed')
+    );
+    expect(rejected.loading).toBe(false);
+    expect(rejected.error).toBe('Registration failed');
+  });
+
   it('should test auth selectors correctly', () => {
     const rootState = {
       auth: {

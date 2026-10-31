@@ -1,14 +1,15 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getUserAvatar } from '../../utils/avatar';
 
-// Pre-seeded mock users for instant testing
+// Pre-seeded mock users with gender-appropriate avatar portraits
 export const DEMO_USERS = [
   {
     id: 'user_001',
     name: 'Alex Morgan',
     email: 'demo@shopsphere.com',
     password: 'password123',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
-    phone: '+1 (555) 234-5678',
+    avatar: getUserAvatar('Alex Morgan', 'demo@shopsphere.com'),
+    phone: '+91 98765 43210',
     address: '742 Evergreen Terrace, Suite 101',
     city: 'Springfield',
     state: 'Oregon',
@@ -19,8 +20,8 @@ export const DEMO_USERS = [
     name: 'Sarah Connor',
     email: 'sarah@example.com',
     password: 'password123',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80',
-    phone: '+1 (555) 987-6543',
+    avatar: getUserAvatar('Sarah Connor', 'sarah@example.com'),
+    phone: '+91 98765 98765',
     address: '10880 Wilshire Boulevard',
     city: 'Los Angeles',
     state: 'California',
@@ -44,14 +45,14 @@ export const simulateLogin = createAsyncThunk(
 
     if (foundUser) {
       if (foundUser.password !== password) {
-        return rejectWithValue('Invalid password. For demo, use: password123');
+        return rejectWithValue('Invalid password. Please check your credentials and try again.');
       }
       return {
         user: {
           id: foundUser.id,
           name: foundUser.name,
           email: foundUser.email,
-          avatar: foundUser.avatar,
+          avatar: foundUser.avatar || getUserAvatar(foundUser.name, foundUser.email),
           phone: foundUser.phone,
           address: foundUser.address,
           city: foundUser.city,
@@ -65,18 +66,19 @@ export const simulateLogin = createAsyncThunk(
 
     // Allow custom registered email or fallback user creation if password is reasonable
     if (password && password.length >= 6) {
-      const name = normalizedEmail.split('@')[0];
+      const rawName = normalizedEmail.split('@')[0];
+      const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       return {
         user: {
           id: `user_${Date.now()}`,
-          name: name.charAt(0).toUpperCase() + name.slice(1),
+          name: displayName,
           email: normalizedEmail,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${normalizedEmail}`,
-          phone: '+1 (555) 000-0000',
-          address: '123 Market Street',
-          city: 'San Francisco',
-          state: 'California',
-          pinCode: '94105',
+          avatar: null,
+          phone: '+91 98765 00000',
+          address: '42 Park Street',
+          city: 'Kolkata',
+          state: 'West Bengal',
+          pinCode: '700016',
         },
         token: `mock_jwt_token_${Date.now()}`,
         rememberMe,
@@ -106,13 +108,14 @@ export const simulateRegistration = createAsyncThunk(
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const trimmedName = name.trim();
 
     return {
       user: {
         id: `user_${Date.now()}`,
-        name: name.trim(),
+        name: trimmedName,
         email: normalizedEmail,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${normalizedEmail}`,
+        avatar: null,
         phone: '',
         address: '',
         city: '',

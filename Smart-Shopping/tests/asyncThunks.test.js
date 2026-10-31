@@ -103,4 +103,55 @@ describe('createAsyncThunk asynchronous operations', () => {
     expect(result.type).toBe('auth/simulateLogin/rejected');
     expect(result.payload).toContain('Invalid password');
   });
+
+  it('fetchProductsByCategory returns category and products', async () => {
+    const mockCategoryData = [{ id: 10, title: 'USB Stick', category: 'electronics' }];
+    vi.spyOn(api, 'getProductsByCategory').mockResolvedValue(mockCategoryData);
+
+    const dispatch = vi.fn();
+    const thunk = fetchProductsByCategory('electronics');
+    const result = await thunk(dispatch, () => ({}), undefined);
+
+    expect(result.type).toBe('products/fetchProductsByCategory/fulfilled');
+    expect(result.payload.category).toBe('electronics');
+    expect(result.payload.products).toEqual(mockCategoryData);
+  });
+
+  it('fetchProducts handles failure and dispatches rejected action', async () => {
+    vi.spyOn(api, 'getProducts').mockRejectedValue(new Error('Network Timeout'));
+
+    const dispatch = vi.fn();
+    const thunk = fetchProducts();
+    const result = await thunk(dispatch, () => ({}), undefined);
+
+    expect(result.type).toBe('products/fetchProducts/rejected');
+    expect(result.payload).toContain('Network Timeout');
+  });
+
+  it('simulateRegistration registers a new user with valid details', async () => {
+    const dispatch = vi.fn();
+    const thunk = simulateRegistration({
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      password: 'password123',
+    });
+    const result = await thunk(dispatch, () => ({}), undefined);
+
+    expect(result.type).toBe('auth/simulateRegistration/fulfilled');
+    expect(result.payload.user.name).toBe('Jane Doe');
+    expect(result.payload.user.email).toBe('jane@example.com');
+  });
+
+  it('simulateRegistration rejects when name is too short', async () => {
+    const dispatch = vi.fn();
+    const thunk = simulateRegistration({
+      name: 'A',
+      email: 'jane@example.com',
+      password: 'password123',
+    });
+    const result = await thunk(dispatch, () => ({}), undefined);
+
+    expect(result.type).toBe('auth/simulateRegistration/rejected');
+    expect(result.payload).toContain('at least 2 characters');
+  });
 });

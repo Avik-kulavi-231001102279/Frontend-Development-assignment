@@ -5,7 +5,7 @@ import { loadFromStorage, STORAGE_KEYS } from '../../utils/localStorage';
 const getInitialTheme = () => {
   const saved = loadFromStorage(STORAGE_KEYS.PREFERENCES, null);
   if (saved?.theme) return saved.theme;
-  if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark';
   }
   return 'light';
@@ -16,7 +16,7 @@ const persisted = loadFromStorage(STORAGE_KEYS.PREFERENCES, {});
 const initialState = {
   theme: getInitialTheme(),
   viewMode: persisted?.viewMode || 'grid', // 'grid' | 'list'
-  currency: persisted?.currency || 'USD', // 'USD' | 'INR'
+  currency: 'INR', // Indian Rupee (INR - ₹) mandatory
   toasts: [], // Array of { id, message, type: 'success' | 'error' | 'info', duration }
 };
 

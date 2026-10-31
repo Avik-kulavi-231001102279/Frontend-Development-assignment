@@ -5,7 +5,6 @@ import { addToast, selectCurrency } from '../../features/preferences/preferenceS
 import { formatPrice } from '../../utils/currency';
 import OrderStatusBadge from './OrderStatusBadge';
 import {
-  Package,
   Calendar,
   ChevronDown,
   ChevronUp,

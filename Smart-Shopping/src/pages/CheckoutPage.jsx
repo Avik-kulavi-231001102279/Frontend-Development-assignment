@@ -24,9 +24,10 @@ import {
   QrCode,
   Banknote,
   Check,
-  Package,
-  AlertCircle,
   Lock,
+  User,
+  MapPin,
+  FileText,
 } from 'lucide-react';
 
 export const CheckoutPage = () => {
@@ -45,41 +46,48 @@ export const CheckoutPage = () => {
   const isPlacingOrder = useSelector(selectOrderLoading);
   const currency = useSelector(selectCurrency);
 
-  // Step 2: Shipping Form State (Pre-filled from auth profile)
-  const [shippingData, setShippingData] = useState({
-    fullName: currentUser?.name || 'Alex Morgan',
-    email: currentUser?.email || 'demo@shopsphere.com',
-    phone: currentUser?.phone || '+1 (555) 234-5678',
-    address: currentUser?.address || '742 Evergreen Terrace, Suite 101',
-    city: currentUser?.city || 'Springfield',
-    state: currentUser?.state || 'Oregon',
-    pinCode: currentUser?.pinCode || '97477',
+  // Step 2: Customer Information Fields
+  const [customerInfo, setCustomerInfo] = useState({
+    fullName: currentUser?.name || '',
+    email: currentUser?.email || '',
+    phone: currentUser?.phone || '',
   });
 
-  // Step 3: Payment Method State
-  const [paymentMethod, setPaymentMethod] = useState('Credit / Debit Card');
-  const [cardData, setCardData] = useState({
-    cardNumber: '•••• •••• •••• 4242',
-    cardHolder: currentUser?.name || 'Alex Morgan',
-    expiry: '12/28',
-    cvv: '•••',
+  // Step 3: Shipping Address Fields
+  const [shippingAddress, setShippingAddress] = useState({
+    address: currentUser?.address || '',
+    city: currentUser?.city || '',
+    state: currentUser?.state || '',
+    pinCode: currentUser?.pinCode || '',
   });
+
+  // Step 4: Payment Method State
+  const [paymentMethod, setPaymentMethod] = useState('Credit / Debit Card');
+  const [cardNumber] = useState('•••• •••• •••• 4242');
   const [upiId, setUpiId] = useState('alex@okhdfcbank');
 
   // Form error state
   const [formErrors, setFormErrors] = useState({});
 
-  // Validation for Step 2
-  const validateShipping = () => {
+  // Validation for Step 2: Customer Info
+  const validateCustomerInfo = () => {
     const errors = {};
-    if (!shippingData.fullName.trim()) errors.fullName = 'Full Name is required';
-    if (!shippingData.email.trim() || !shippingData.email.includes('@'))
+    if (!customerInfo.fullName.trim()) errors.fullName = 'Full Name is required';
+    if (!customerInfo.email.trim() || !customerInfo.email.includes('@'))
       errors.email = 'Valid Email is required';
-    if (!shippingData.phone.trim()) errors.phone = 'Phone number is required';
-    if (!shippingData.address.trim()) errors.address = 'Street Address is required';
-    if (!shippingData.city.trim()) errors.city = 'City is required';
-    if (!shippingData.state.trim()) errors.state = 'State is required';
-    if (!shippingData.pinCode.trim()) errors.pinCode = 'PIN/Postal code is required';
+    if (!customerInfo.phone.trim()) errors.phone = 'Phone number is required';
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Validation for Step 3: Shipping Address
+  const validateShippingAddress = () => {
+    const errors = {};
+    if (!shippingAddress.address.trim()) errors.address = 'Street Address is required';
+    if (!shippingAddress.city.trim()) errors.city = 'City is required';
+    if (!shippingAddress.state.trim()) errors.state = 'State is required';
+    if (!shippingAddress.pinCode.trim()) errors.pinCode = 'PIN/Postal code is required';
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -93,11 +101,17 @@ export const CheckoutPage = () => {
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (validateShipping()) {
+      if (validateCustomerInfo()) {
         setCurrentStep(3);
       }
     } else if (currentStep === 3) {
-      setCurrentStep(4);
+      if (validateShippingAddress()) {
+        setCurrentStep(4);
+      }
+    } else if (currentStep === 4) {
+      setCurrentStep(5);
+    } else if (currentStep === 5) {
+      setCurrentStep(6);
     }
   };
 
@@ -105,6 +119,7 @@ export const CheckoutPage = () => {
     setCurrentStep((prev) => Math.max(1, prev - 1));
   };
 
+  // Step 6: Place Order
   const handlePlaceOrder = async () => {
     try {
       const orderPayload = {
@@ -114,7 +129,13 @@ export const CheckoutPage = () => {
         tax,
         shipping,
         totalAmount: finalTotal,
-        shippingAddress: shippingData,
+        customerInfo,
+        shippingAddress: {
+          fullName: customerInfo.fullName,
+          email: customerInfo.email,
+          phone: customerInfo.phone,
+          ...shippingAddress,
+        },
         paymentMethod,
         appliedCoupon: appliedCoupon?.code || null,
       };
@@ -134,7 +155,7 @@ export const CheckoutPage = () => {
           state: { order: createdOrder },
         });
       }
-    } catch (err) {
+    } catch {
       dispatch(addToast({ message: 'Failed to place order. Try again.', type: 'error' }));
     }
   };
@@ -156,22 +177,26 @@ export const CheckoutPage = () => {
 
   return (
     <div className="max-w-5xl mx-auto py-6 space-y-8 pb-16">
-      {/* Stepper Header */}
+      {/* Stepper Header (6 Steps) */}
       <CheckoutSteps currentStep={currentStep} />
 
       {/* Main Form Box */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column: Interactive Step Content */}
         <div className="lg:col-span-2 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm space-y-6">
-          {/* STEP 1: CART REVIEW */}
+          {/* STEP 1: ORDER REVIEW */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <FileText className="w-4 h-4" />
+                  <span>Step 1 of 6</span>
+                </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Step 1: Review Cart Items ({cartItems.length})
+                  Order Review ({cartItems.length} items)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Verify the items and quantities in your order before entering shipping details.
+                  Verify the selected items and quantities in your cart before continuing.
                 </p>
               </div>
 
@@ -202,27 +227,32 @@ export const CheckoutPage = () => {
             </div>
           )}
 
-          {/* STEP 2: SHIPPING INFORMATION */}
+          {/* STEP 2: CUSTOMER INFORMATION */}
           {currentStep === 2 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <User className="w-4 h-4" />
+                  <span>Step 2 of 6</span>
+                </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Step 2: Shipping Information
+                  Customer Information
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Where should we deliver your order? (Pre-filled from your profile)
+                  Please provide your contact details for order tracking and receipts.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Full Name *
                   </label>
                   <input
                     type="text"
-                    value={shippingData.fullName}
-                    onChange={(e) => setShippingData({ ...shippingData, fullName: e.target.value })}
+                    required
+                    value={customerInfo.fullName}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, fullName: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {formErrors.fullName && (
@@ -236,8 +266,9 @@ export const CheckoutPage = () => {
                   </label>
                   <input
                     type="email"
-                    value={shippingData.email}
-                    onChange={(e) => setShippingData({ ...shippingData, email: e.target.value })}
+                    required
+                    value={customerInfo.email}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {formErrors.email && (
@@ -245,29 +276,52 @@ export const CheckoutPage = () => {
                   )}
                 </div>
 
-                <div className="sm:col-span-2">
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Phone Number *
                   </label>
                   <input
                     type="tel"
-                    value={shippingData.phone}
-                    onChange={(e) => setShippingData({ ...shippingData, phone: e.target.value })}
+                    required
+                    value={customerInfo.phone}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {formErrors.phone && (
                     <p className="text-[11px] text-rose-500 mt-1">{formErrors.phone}</p>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div className="sm:col-span-2">
+          {/* STEP 3: SHIPPING ADDRESS */}
+          {currentStep === 3 && (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>Step 3 of 6</span>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Shipping Address
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Where should we deliver your products?
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Street Address *
                   </label>
                   <input
                     type="text"
-                    value={shippingData.address}
-                    onChange={(e) => setShippingData({ ...shippingData, address: e.target.value })}
+                    required
+                    value={shippingAddress.address}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, address: e.target.value })}
+                    placeholder="e.g. 742 Evergreen Terrace, Suite 101"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {formErrors.address && (
@@ -275,44 +329,52 @@ export const CheckoutPage = () => {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    value={shippingData.city}
-                    onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  {formErrors.city && (
-                    <p className="text-[11px] text-rose-500 mt-1">{formErrors.city}</p>
-                  )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={shippingAddress.city}
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
+                      placeholder="e.g. Springfield"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    {formErrors.city && (
+                      <p className="text-[11px] text-rose-500 mt-1">{formErrors.city}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      State / Province *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={shippingAddress.state}
+                      onChange={(e) => setShippingAddress({ ...shippingAddress, state: e.target.value })}
+                      placeholder="e.g. Oregon"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    {formErrors.state && (
+                      <p className="text-[11px] text-rose-500 mt-1">{formErrors.state}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    State / Province *
+                    PIN / Postal Code *
                   </label>
                   <input
                     type="text"
-                    value={shippingData.state}
-                    onChange={(e) => setShippingData({ ...shippingData, state: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  {formErrors.state && (
-                    <p className="text-[11px] text-rose-500 mt-1">{formErrors.state}</p>
-                  )}
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    PIN / ZIP Code *
-                  </label>
-                  <input
-                    type="text"
-                    value={shippingData.pinCode}
-                    onChange={(e) => setShippingData({ ...shippingData, pinCode: e.target.value })}
+                    required
+                    value={shippingAddress.pinCode}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, pinCode: e.target.value })}
+                    placeholder="e.g. 97477"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {formErrors.pinCode && (
@@ -323,89 +385,53 @@ export const CheckoutPage = () => {
             </div>
           )}
 
-          {/* STEP 3: PAYMENT METHOD */}
-          {currentStep === 3 && (
+          {/* STEP 4: PAYMENT METHOD */}
+          {currentStep === 4 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <CreditCard className="w-4 h-4" />
+                  <span>Step 4 of 6</span>
+                </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Step 3: Select Payment Method
+                  Payment Method
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Simulated payment options (no real financial transaction will occur).
+                  Select a simulated payment method (no real payment gateway required).
                 </p>
               </div>
 
               <div className="space-y-3">
-                {/* Credit Card Option */}
+                {/* Cash on Delivery */}
                 <div
-                  onClick={() => setPaymentMethod('Credit / Debit Card')}
+                  onClick={() => setPaymentMethod('Cash on Delivery')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                    paymentMethod === 'Credit / Debit Card'
+                    paymentMethod === 'Cash on Delivery'
                       ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                        <CreditCard className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                        <Banknote className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-900 dark:text-white">
-                          Credit / Debit Card
+                          Cash on Delivery
                         </p>
                         <p className="text-[11px] text-slate-400">
-                          Visa, Mastercard, Amex (Simulated)
+                          Pay directly upon parcel arrival
                         </p>
                       </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'Credit / Debit Card' ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}`}>
-                      {paymentMethod === 'Credit / Debit Card' && <Check className="w-3 h-3" />}
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'Cash on Delivery' ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}`}>
+                      {paymentMethod === 'Cash on Delivery' && <Check className="w-3 h-3" />}
                     </div>
                   </div>
-
-                  {paymentMethod === 'Credit / Debit Card' && (
-                    <div className="mt-4 pt-3 border-t border-indigo-100 dark:border-indigo-900 space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                          Card Number
-                        </label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={cardData.cardNumber}
-                          className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                            Expiry
-                          </label>
-                          <input
-                            type="text"
-                            readOnly
-                            value={cardData.expiry}
-                            className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                            CVV
-                          </label>
-                          <input
-                            type="text"
-                            readOnly
-                            value={cardData.cvv}
-                            className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                {/* UPI Option */}
+                {/* UPI */}
                 <div
                   onClick={() => setPaymentMethod('UPI')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
@@ -421,10 +447,10 @@ export const CheckoutPage = () => {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-900 dark:text-white">
-                          UPI / QR Code
+                          UPI
                         </p>
                         <p className="text-[11px] text-slate-400">
-                          Google Pay, PhonePe, Paytm (Simulated)
+                          Google Pay, PhonePe, Paytm (Simulated VPA)
                         </p>
                       </div>
                     </div>
@@ -448,116 +474,169 @@ export const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Cash on Delivery Option */}
+                {/* Credit / Debit Card */}
                 <div
-                  onClick={() => setPaymentMethod('Cash on Delivery')}
+                  onClick={() => setPaymentMethod('Credit/Debit Card')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                    paymentMethod === 'Cash on Delivery'
+                    paymentMethod === 'Credit/Debit Card'
                       ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                        <Banknote className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                        <CreditCard className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-900 dark:text-white">
-                          Cash on Delivery (COD)
+                          Credit/Debit Card
                         </p>
                         <p className="text-[11px] text-slate-400">
-                          Pay directly upon home parcel arrival
+                          Visa, MasterCard, Amex (Simulated)
                         </p>
                       </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'Cash on Delivery' ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}`}>
-                      {paymentMethod === 'Cash on Delivery' && <Check className="w-3 h-3" />}
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${paymentMethod === 'Credit/Debit Card' ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}`}>
+                      {paymentMethod === 'Credit/Debit Card' && <Check className="w-3 h-3" />}
                     </div>
                   </div>
+
+                  {paymentMethod === 'Credit/Debit Card' && (
+                    <div className="mt-3 pt-3 border-t border-indigo-100 dark:border-indigo-900 space-y-2">
+                      <label className="block text-[11px] font-bold text-slate-500 uppercase">
+                        Card Number
+                      </label>
+                      <input
+                        type="text"
+                        readOnly
+                        value={cardNumber}
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 4 & 5: FINAL ORDER REVIEW & CONFIRM */}
-          {currentStep >= 4 && (
+          {/* STEP 5: FINAL ORDER SUMMARY */}
+          {currentStep === 5 && (
             <div className="space-y-6 animate-in fade-in">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <FileText className="w-4 h-4" />
+                  <span>Step 5 of 6</span>
+                </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Step 4: Review and Place Order
+                  Final Order Summary
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Please review your delivery details and order contents before placing.
+                  Verify products, quantities, discounts, and final calculated price.
                 </p>
               </div>
 
-              {/* Delivery info summary box */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase text-slate-400">
-                      Deliver To:
-                    </span>
-                    <button
-                      onClick={() => setCurrentStep(2)}
-                      className="text-indigo-600 text-[11px] font-bold hover:underline"
-                    >
-                      Change
-                    </button>
-                  </div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">
-                    {shippingData.fullName}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {shippingData.address}, {shippingData.city}, {shippingData.state} - {shippingData.pinCode}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {shippingData.phone}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase text-slate-400">
-                      Payment Mode:
-                    </span>
-                    <button
-                      onClick={() => setCurrentStep(3)}
-                      className="text-indigo-600 text-[11px] font-bold hover:underline"
-                    >
-                      Change
-                    </button>
-                  </div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">
-                    {paymentMethod}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Status: <span className="text-emerald-600 font-semibold">Simulated Gateway Ready</span>
-                  </p>
+              {/* Products and Quantity table */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Products & Quantity
+                </h4>
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="py-2.5 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-3">
+                        <img src={item.image} alt={item.title} className="w-10 h-10 object-contain bg-white rounded-lg p-1 border" />
+                        <div>
+                          <p className="font-semibold text-slate-900 dark:text-white line-clamp-1 max-w-xs">
+                            {item.title}
+                          </p>
+                          <p className="text-slate-400 text-[11px]">Quantity: {item.quantity}</p>
+                        </div>
+                      </div>
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {formatPrice(item.price * item.quantity, currency)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Items summary */}
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="py-2.5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2.5">
-                      <img src={item.image} alt={item.title} className="w-8 h-8 object-contain bg-white rounded-lg p-0.5 border" />
-                      <span className="text-slate-800 dark:text-slate-200 line-clamp-1 max-w-xs font-medium">
-                        {item.title} (x{item.quantity})
-                      </span>
-                    </div>
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      {formatPrice(item.price * item.quantity, currency)}
-                    </span>
+              {/* Financial Calculation Breakdown */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{formatPrice(subtotal, currency)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-semibold">
+                    <span>Discount ({appliedCoupon?.code}):</span>
+                    <span>-{formatPrice(discount, currency)}</span>
                   </div>
-                ))}
+                )}
+                <div className="flex justify-between">
+                  <span>Tax (5%):</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{formatPrice(tax, currency)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping:</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{shipping === 0 ? 'FREE' : formatPrice(shipping, currency)}</span>
+                </div>
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-baseline text-sm font-bold text-slate-900 dark:text-white">
+                  <span>Final Amount:</span>
+                  <span className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                    {formatPrice(finalTotal, currency)}
+                  </span>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Navigation Buttons for Checkout */}
+          {/* STEP 6: PLACE ORDER */}
+          {currentStep === 6 && (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <Lock className="w-4 h-4" />
+                  <span>Step 6 of 6</span>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Confirm & Place Order
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Ready to place your order! Click the button below to confirm.
+                </p>
+              </div>
+
+              {/* Confirmation Overview Box */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Customer</span>
+                  <p className="font-bold text-slate-900 dark:text-white">{customerInfo.fullName}</p>
+                  <p className="text-slate-500">{customerInfo.email}</p>
+                  <p className="text-slate-500">{customerInfo.phone}</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Shipping Address</span>
+                  <p className="font-bold text-slate-900 dark:text-white">{shippingAddress.address}</p>
+                  <p className="text-slate-500">{shippingAddress.city}, {shippingAddress.state} - {shippingAddress.pinCode}</p>
+                  <p className="text-slate-500">Payment: <strong>{paymentMethod}</strong></p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs space-y-1">
+                <p className="font-bold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Order Placement Ready</span>
+                </p>
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                  Total of {cartItems.length} product(s) for a final amount of <strong>{formatPrice(finalTotal, currency)}</strong>.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation & Action Buttons */}
           <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
             {currentStep > 1 ? (
               <button
@@ -578,7 +657,7 @@ export const CheckoutPage = () => {
               </Link>
             )}
 
-            {currentStep < 4 ? (
+            {currentStep < 6 ? (
               <button
                 type="button"
                 onClick={handleNextStep}
@@ -599,7 +678,7 @@ export const CheckoutPage = () => {
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Confirm & Place Order</span>
+                    <span>Place Order</span>
                   </>
                 )}
               </button>
@@ -607,7 +686,7 @@ export const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* Right Column: Order Cost Breakdown Card */}
+        {/* Right Column: Order Total Summary Card */}
         <div className="lg:col-span-1 sticky top-24 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm space-y-4">
           <h3 className="font-extrabold text-sm text-slate-900 dark:text-white uppercase tracking-wider">
             Order Total Summary
@@ -635,7 +714,7 @@ export const CheckoutPage = () => {
               </span>
             </div>
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-baseline text-sm">
-              <span className="font-bold text-slate-900 dark:text-white">Amount to Pay:</span>
+              <span className="font-bold text-slate-900 dark:text-white">Final Amount:</span>
               <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">
                 {formatPrice(finalTotal, currency)}
               </span>

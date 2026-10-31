@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PackageOpen, ShoppingBag, Search, ArrowRight } from 'lucide-react';
+import { PackageOpen, ArrowRight } from 'lucide-react';
 
 export const EmptyState = ({
   icon: Icon = PackageOpen,

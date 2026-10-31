@@ -14,9 +14,9 @@ export const SortDropdown = () => {
     { value: 'featured', label: 'Featured & Popular' },
     { value: 'price-asc', label: 'Price: Low to High' },
     { value: 'price-desc', label: 'Price: High to Low' },
-    { value: 'rating', label: 'Highest Rated' },
-    { value: 'alpha-asc', label: 'Alphabetical: A to Z' },
-    { value: 'alpha-desc', label: 'Alphabetical: Z to A' },
+    { value: 'rating', label: 'Rating: Highest First' },
+    { value: 'alpha-asc', label: 'Name: A to Z' },
+    { value: 'alpha-desc', label: 'Name: Z to A' },
   ];
 
   return (

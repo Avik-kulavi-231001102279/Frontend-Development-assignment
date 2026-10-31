@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
+import ShoppingDashboardPage from '../pages/ShoppingDashboardPage';
 import ShopPage from '../pages/ShopPage';
 import CategoryPage from '../pages/CategoryPage';
 import ProductDetailsPage from '../pages/ProductDetailsPage';
@@ -18,23 +19,57 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 export const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public Pages */}
+      {/* 1. Public Pages (Accessible to unauthenticated visitors) */}
       <Route path="/" element={<HomePage />} />
-      <Route path="/shop" element={<ShopPage />} />
-      <Route path="/category/:categoryName" element={<CategoryPage />} />
-      <Route path="/product/:id" element={<ProductDetailsPage />} />
-      <Route path="/search" element={<SearchResultsPage />} />
-      <Route path="/cart" element={<CartPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
 
-      {/* Protected Pages (Authentication Required) */}
+      {/* 2. Authentication-First Protected Pages (Redirects unauthenticated visitors to /login) */}
       <Route
-        path="/profile"
+        path="/dashboard"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <ShoppingDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shop"
+        element={
+          <ProtectedRoute>
+            <ShopPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/category/:categoryName"
+        element={
+          <ProtectedRoute>
+            <CategoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/product/:id"
+        element={
+          <ProtectedRoute>
+            <ProductDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <SearchResultsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <CartPage />
           </ProtectedRoute>
         }
       />
@@ -47,10 +82,26 @@ export const AppRoutes = () => {
         }
       />
       <Route
+        path="/order-confirmation/:orderId"
+        element={
+          <ProtectedRoute>
+            <OrderConfirmationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/orders"
         element={
           <ProtectedRoute>
             <OrderHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />

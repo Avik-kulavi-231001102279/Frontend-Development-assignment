@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByCategory, fetchProducts } from '../features/products/productThunks';
 import {
-  selectProductsByCategory,
+  selectSortedCategoryProducts,
   selectProductsStatus,
   selectProductsError,
   selectAllProducts,
@@ -11,7 +11,7 @@ import {
 import { selectViewMode } from '../features/preferences/preferenceSlice';
 import ProductGrid from '../components/products/ProductGrid';
 import SortDropdown from '../components/products/SortDropdown';
-import { ArrowLeft, Sparkles, Layers } from 'lucide-react';
+import { ArrowLeft, Layers } from 'lucide-react';
 
 const categoryDescriptions = {
   electronics: 'Cutting-edge personal electronics, high-capacity solid state drives, and high-resolution IPS gaming monitors.',
@@ -30,9 +30,9 @@ export const CategoryPage = () => {
   const error = useSelector(selectProductsError);
   const viewMode = useSelector(selectViewMode);
 
-  // Selector for this specific category
+  // Sorted products for this specific category
   const categoryProducts = useSelector((state) =>
-    selectProductsByCategory(state, decodedCategory)
+    selectSortedCategoryProducts(state, decodedCategory)
   );
 
   useEffect(() => {

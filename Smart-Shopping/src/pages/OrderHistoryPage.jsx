@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { selectRecentOrders } from '../features/orders/orderSelectors';
 import OrderCard from '../components/orders/OrderCard';
 import EmptyState from '../components/common/EmptyState';
-import { Package, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Package, ShoppingBag } from 'lucide-react';
 
 export const OrderHistoryPage = () => {
   const orders = useSelector(selectRecentOrders);

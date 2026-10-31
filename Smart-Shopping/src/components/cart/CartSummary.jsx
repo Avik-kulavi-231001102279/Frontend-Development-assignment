@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectCartSubtotal,
@@ -15,7 +15,6 @@ import { addToast, selectCurrency } from '../../features/preferences/preferenceS
 import { formatPrice } from '../../utils/currency';
 import {
   Tag,
-  CheckCircle2,
   X,
   ArrowRight,
   ShieldCheck,
@@ -26,7 +25,6 @@ import {
 export const CartSummary = ({ showCheckoutButton = true }) => {
   const [couponCode, setCouponCode] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const subtotal = useSelector(selectCartSubtotal);
   const discount = useSelector(selectCartDiscount);
