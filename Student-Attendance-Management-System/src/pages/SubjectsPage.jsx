@@ -390,11 +390,7 @@ export const SubjectsPage = () => {
         subjects={subjects}
         onEditSubject={handleOpenEditModal}
         onDeleteSubject={(sub) => setDeleteCandidate(sub)}
-        departments={departments}
-        semesters={semesters}
-        sections={sections}
         filters={filters}
-        onFilterChange={(newF) => setFilters((prev) => ({ ...prev, ...newF }))}
       />
 
       {/* Add / Edit Subject Modal */}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Edit2, Trash2, ArrowUpDown, BookOpen, Layers } from 'lucide-react';
+import { Edit2, Trash2, ArrowUpDown } from 'lucide-react';
 import { Button } from '../common/Button';
 
 /**
@@ -9,11 +9,7 @@ export const SubjectTable = ({
   subjects = [],
   onEditSubject,
   onDeleteSubject,
-  departments = [],
-  semesters = [],
-  sections = [],
   filters = {},
-  onFilterChange,
 }) => {
   const [sortField, setSortField] = useState('code');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -66,88 +62,6 @@ export const SubjectTable = ({
 
   return (
     <div>
-      {/* Filtering Toolbar */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-          gap: '0.85rem',
-          marginBottom: '1.25rem',
-          backgroundColor: 'var(--bg-surface)',
-          padding: '1.25rem',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--border-light)',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div style={{ position: 'relative', gridColumn: 'span 2' }}>
-          <div
-            style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)',
-              display: 'flex',
-            }}
-          >
-            <Search size={17} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search by Subject Code or Title..."
-            value={filters.search || ''}
-            onChange={(e) => onFilterChange({ key: 'search', value: e.target.value })}
-            style={{ width: '100%', paddingLeft: '38px' }}
-          />
-        </div>
-
-        <div>
-          <select
-            value={filters.department || ''}
-            onChange={(e) => onFilterChange({ key: 'department', value: e.target.value })}
-            style={{ width: '100%' }}
-          >
-            <option value="">All Departments</option>
-            {departments.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <select
-            value={filters.semester || ''}
-            onChange={(e) => onFilterChange({ key: 'semester', value: e.target.value })}
-            style={{ width: '100%' }}
-          >
-            <option value="">All Semesters</option>
-            {semesters.map((s) => (
-              <option key={s} value={s}>
-                Semester {s}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <select
-            value={filters.section || ''}
-            onChange={(e) => onFilterChange({ key: 'section', value: e.target.value })}
-            style={{ width: '100%' }}
-          >
-            <option value="">All Sections</option>
-            {sections.map((sec) => (
-              <option key={sec} value={sec}>
-                Section {sec}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       {/* Subjects Table */}
       <div
         style={{

@@ -439,17 +439,6 @@ export const StudentsPage = () => {
         onEditStudent={handleOpenEditModal}
         onDeleteStudent={(student) => setDeleteCandidate(student)}
         onToggleStatus={(student) => setStatusToggleCandidate(student)}
-        departments={departments}
-        semesters={semesters}
-        sections={sections}
-        filters={filters}
-        onFilterChange={(newFilters) => {
-          if (newFilters.search !== undefined) dispatch(setSearchFilter(newFilters.search));
-          if (newFilters.department !== undefined) dispatch(setDepartmentFilter(newFilters.department));
-          if (newFilters.semester !== undefined) dispatch(setSemesterFilter(newFilters.semester));
-          if (newFilters.section !== undefined) dispatch(setSectionFilter(newFilters.section));
-          if (newFilters.status !== undefined) dispatch(setStatusFilter(newFilters.status));
-        }}
       />
 
       {/* Add / Edit Student Modal */}
